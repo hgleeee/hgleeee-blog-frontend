@@ -2,11 +2,14 @@
 const props = defineProps(['category']);
 const categoryName = props.category.name;
 const categoryLink = props.category.link;
+
+
 </script>
 
 <template>
     <div id="wrapper">
-        <a :href="categoryLink">{{ categoryName }}</a>
+        <a v-if="categoryLink !== null" :href="categoryLink">{{ categoryName }}</a>
+        <a v-else @click="$emit('clickLogin')">{{ categoryName }}</a>
     </div>
 </template>
 

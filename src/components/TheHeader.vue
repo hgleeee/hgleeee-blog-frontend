@@ -6,7 +6,8 @@ const mainCategories = [
   {name: 'Project', link: '/project'}, 
   {name: 'About Me', link: '/about'}
 ];
-const login = {name: '로그인', link: '/login'}
+const login = {name: '로그인', link: null}
+
 </script>
 
 <template>
@@ -24,7 +25,7 @@ const login = {name: '로그인', link: '/login'}
     <el-col :span="4" class="right-part">
       <ul>
         <li>
-          <TheHeaderItem :category="login"/>
+          <TheHeaderItem :category="login" @click-login="$emit('clickLogin')" />
         </li>
       </ul>
     </el-col>
@@ -32,19 +33,6 @@ const login = {name: '로그인', link: '/login'}
 </template>
 
 <style scoped>
-a {
-  text-decoration: none;
-  color: black;
-}
-a:visited {
-  text-decoration: none;
-}
-a:hover {
-  color: red;
-}
-a:focus {
-  color: red;
-}
 h1 {
   font-size: 1rem;
 }
