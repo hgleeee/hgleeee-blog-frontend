@@ -73,7 +73,7 @@ const updateEditor = function(value: string) {
 }
 
 .line {
-    width: 100%;
+    width: 50%;
     height: 0;
     margin: 30px 0 30px 120px;
     border-top: 1px solid var(--el-border-color);
