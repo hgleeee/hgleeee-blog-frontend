@@ -1,6 +1,9 @@
 import { createRouter, createWebHistory } from 'vue-router'
-import HomeView from '../views/HomeView.vue'
-import WriteView from '../views/WriteView.vue'
+import HomeView from '@/views/HomeView.vue'
+import WriteView from '@/views/WriteView.vue'
+import PostPageView from '@/views/PostPageView.vue'
+import SignupView from '@/views/SignupView.vue'
+import PostView from '@/views/PostView.vue'
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -14,6 +17,21 @@ const router = createRouter({
       path: '/write',
       name: 'write',
       component: WriteView
+    },
+    {
+      path: '/posts',
+      name: 'posts',
+      component: PostPageView
+    },
+    {
+      path: '/join',
+      name: 'signup',
+      component: SignupView
+    },
+    {
+      path: '/post',
+      name: 'post',
+      component: PostView
     }
     // {
     //   path: '/about',
