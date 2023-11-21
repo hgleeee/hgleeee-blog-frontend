@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import {  reactive } from 'vue'
+import { reactive } from 'vue'
 import axios from 'axios'
 
 type Signup = {

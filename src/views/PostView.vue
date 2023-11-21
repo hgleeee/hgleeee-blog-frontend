@@ -1,5 +1,7 @@
 <script setup lang="ts">
 import { ref, reactive, onMounted } from 'vue'
+import { useRoute } from 'vue-router'
+import axios from 'axios'
 
 type Post = {
   title: string,
@@ -24,8 +26,8 @@ const post: Post = reactive({
 })
 
 const comments: Array<Comment>= [
-  {authorName: 'hgleee', content: '댓글입니다1', depth: 0, createdAt: new Date, deletedAt: null,},
-  {authorName: 'abcdef', content: '댓글입니다2', depth: 1, createdAt: new Date, deletedAt: null,},
+  {authorName: 'hgleee', content: '11안녕안녕1111111111111111111111111111111etafawrewaaaaaaaaaaa1111111111111etafawrewaaaaaaa1111111111111etaffadfaewfawrfawawrewaaaaaaa1111111111111etafawrewaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa', depth: 0, createdAt: new Date, deletedAt: null,},
+  {authorName: 'abcdef', content: '댓글입니다21안녕안녕1111111111111111111111111111111etafawrewaaaaaaaaaaa1111111111111etafawre1안녕안녕1111111111111111111111111111111etafawrewaaaaaaaaaaa1111111111111etafawre1안녕안녕1111111111111111111111111111111etafawrewaaaaaaaaaaa1111111111111etafawre1안녕안녕1111111111111111111111111111111etafawrewaaaaaaaaaaa1111111111111etafawre1안녕안녕1111111111111111111111111111111etafawrewaaaaaaaaaaa1111111111111etafawre', depth: 1, createdAt: new Date, deletedAt: null,},
   {authorName: '123456', content: '댓글입니다3', depth: 2, createdAt: new Date, deletedAt: null,},
   {authorName: '123', content: '댓글입니다4', depth: 3, createdAt: new Date, deletedAt: null,},
   {authorName: 'hgleee', content: '댓글입니다4', depth: 0, createdAt: new Date, deletedAt: null,},
@@ -33,11 +35,47 @@ const comments: Array<Comment>= [
   {authorName: 'hgleee', content: '댓글입니다6', depth: 0, createdAt: new Date, deletedAt: null,},
 ]
 
-const textarea = ref('');
+const route = useRoute();
+const commentText = ref('');
+const replyText = ref('');
+
+const dateExpression = function(date: Date) {
+  var year = date.getFullYear();
+  var month = ("0" + (1 + date.getMonth())).slice(-2);
+  var day = ("0" + date.getDate()).slice(-2);
+  const yearMonth = year + "-" + month + "-" + day;
+
+  const time = date.getHours() + ":" + ("0" + date.getMinutes()).slice(-2);
+  return yearMonth + " " + time;
+}
+
+const openReplyArea = function(idx: number) {
+  const replyArea = document.getElementById('reply-input')!;
+  console.log(document.getElementById('reply-input-area'+idx)!.childElementCount);
+  if (replyArea.style.display !== 'none' && document.getElementById('reply-input-area'+idx)!.childElementCount >= 1) {
+    replyArea.style.display = 'none';
+    return;
+  }
+  replyArea.style.display = 'flex';
+  replyText.value = '';
+  document.getElementById('reply-input-area' + idx)!.appendChild(replyArea);
+}
 
 onMounted(() => {
-  const bodyTarget = document.getElementById('body')!;
-  bodyTarget.innerHTML = post.content;
+  const postId = route.params.id;
+  console.log(postId);
+  axios.get("/api/post/" + postId)
+        .then((result) => {
+          post.title = result.data.title;
+          post.content = result.data.content;
+          post.createdAt = result.data.createdAt;
+          
+          const bodyTarget = document.getElementById('body')!;
+          bodyTarget.innerHTML = post.content;
+        })
+        .catch((error) => {
+          console.log(error)
+        });
 })
 
 
@@ -57,44 +95,70 @@ onMounted(() => {
     </div>
     <div id="body"></div>
     <div id="footer">
-      <h4>댓글</h4>
+      <h4>댓글 : {{ comments.length }}</h4>
       <div v-if="comments.length === 0">
         등록된 댓글이 없습니다.
       </div>
+
       <ul class="comment">
         <li v-for="(comment, i) in comments" :key="i">
-          <div>
-            <div v-if="comment.depth > 0" id="reply-head">
-              <span id="reply-blank" v-for="n in (comment.depth-1)" :key="n"></span>
-              <font-awesome-icon icon="share" flip="vertical" />
+          <div class="comment-area">
+            <div class="reply-head" v-if="comment.depth > 0">
+              <span class="reply-blank" v-for="n in (comment.depth-1)" :key="n"></span>
+              <font-awesome-icon icon="share" flip="vertical" style="align-items: center;" />
             </div>
-            <div v-else>
-              <span id="comment-head"></span>
-            </div>
-            <div id="comment-name-box">
+            <div class="comment-name-box">
               {{ comment.authorName }}
             </div>
-            <div id="comment-content-box">
-              {{ comment.content }}
+            <div class="comment-content-box">
+              <p @click="openReplyArea(i)">{{ comment.content }}</p>
             </div>
+            <div class="comment-etc-box">
+              {{ dateExpression(comment.createdAt) }}
+            </div>
+          </div>
+          <div :id="'reply-input-area' + i">
           </div>
         </li>
       </ul>
-      <div id="input-area">
-        <div id="text-area">
+
+      <div id="pagination">
+        <el-pagination class="custom-pagination" layout="prev, pager, next" :total="60" />
+      </div>
+      
+      <div id="comment-input">
+        <div class="text-area">
           <el-input
-            v-model="textarea"
+            v-model="commentText"
             :rows="2"
             type="textarea"
             placeholder="댓글을 입력해주세요"
           />
         </div>
-        <div id="button-area">
+        <div class="button-area">
           <button type="button">
             등록
           </button>
         </div>
       </div>
+
+    </div>
+  </div>
+  
+  <!-- 답글 입력할 때 필요한 파츠 -->
+  <div id="reply-input">
+    <div class="text-area">
+      <el-input
+        v-model="replyText"
+        :rows="2"
+        type="textarea"
+        placeholder="답글을 입력해주세요"
+      />
+    </div>
+    <div class="button-area">
+      <button type="button">
+        등록
+      </button>
     </div>
   </div>
 </template>
@@ -116,7 +180,7 @@ $main-color: #FF5675;
     display: flex;
     justify-content: space-between;
     align-items: center;
-    border-top: $gray-color 1px solid;
+    border-top: $main-color 2px solid;
 
     h3 {
       margin: 0 10px;
@@ -129,7 +193,7 @@ $main-color: #FF5675;
 
   &>#meta {
     justify-content: flex-end;
-    border-bottom: #dcdcdc 1px solid;
+    border-bottom: $gray-color 1px solid;
     &>div{
       margin: 2px 7px;
     }
@@ -153,31 +217,62 @@ $main-color: #FF5675;
     list-style: none;
     padding: 0;
     &>li {
-      padding: 0 20px;
+      padding: 0 10px;
 
-      &>div {
+      &>.comment-area {
         display: flex;
-        width: 100%;
         padding: 9px 3px 7px;
 
-        &>#comment-name-box {
+        &>.reply-head {
+          display: flex;
+          align-items: center;
+          color: $main-color; 
+          font-size: 0.6rem;
+          margin: 0 5px 0 0;
+
+          &>.reply-blank {
+            margin: 0 9px;
+          }
+        }
+
+        &>.comment-name-box {
           display: flex;
           align-items: center;
           color: $gray-color;
           font-weight: bold;
           font-size: 0.9rem;
-          width: 100px;
+          min-width: 100px;
+          max-width: 100px;
         }
 
-        &>#comment-content-box {
+        &>.comment-content-box {
           @include content-font-regular;
           font-size: 0.95rem;
+          flex: 1;
+
+          &>p {
+            word-break: break-all;
+            margin: 0;
+            &:hover {
+              cursor: pointer;
+            }
+          }
         }
+
+        &>.comment-etc-box {
+          margin-left: 10px;
+          font-size: 0.8rem;
+          color: rgba(70, 70, 70, 0.6);
+          display: flex;
+          justify-content: center;
+          align-items: center;
+        }
+
       }
     }
   }
 
-  &>#input-area {
+  &>#comment-input {
     display: flex;
     margin: 20px 5px 0 5px;
     box-sizing: border-box;
@@ -188,10 +283,10 @@ $main-color: #FF5675;
       padding: 20px;
       display: flex;
     }
-    &>#text-area {
+    &>.text-area {
       flex: 12;
     }
-    &>#button-area {
+    &>.button-area {
       flex: 1;
 
       &>button {
@@ -210,17 +305,47 @@ $main-color: #FF5675;
   }
 }
 
-#comment-head {
+.comment-head {
   margin: 0 2px;
 }
-#reply-head {
-  color: $main-color; 
-  font-size: 0.6rem;
-  margin: 0 5px 0 2px;
 
-  &>#reply-blank {
-    margin: 0 5px;
+#reply-input {
+  display: none;
+  margin: 5px 2px 5px 30px;
+  box-sizing: border-box;
+  border: $gray-color 1px solid;
+
+  &>.text-area {
+    flex: 1;
+    padding: 20px;
   }
+  &>.button-area {
+    display: flex;
+    padding: 20px;
+    &>button {
+      width: 80px;
+      text-align: center;
+      cursor: pointer;
+      font-weight: bold;
+      color: $gray-color;
+      border-color: $gray-color;
+      &:hover {
+          background: $gray-color;
+          color: white;
+      }
+    }
+  }
+}
+
+#pagination {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+
+}
+
+.custom-pagination {
+  --el-color-primary: rgb(255, 2, 102);
 }
 
 </style>
