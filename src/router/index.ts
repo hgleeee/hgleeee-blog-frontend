@@ -20,7 +20,7 @@ const router = createRouter({
       component: WriteView
     },
     {
-      path: '/posts',
+      path: '/posts/:code',
       name: 'posts',
       component: PostPageView
     },
