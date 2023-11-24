@@ -1,12 +1,19 @@
 <script lang="ts" setup>
+import { ref, watch } from 'vue'
 const props = defineProps(['subCategories']);
-const subCategories = props.subCategories;
+const subCategories = ref(props.subCategories);
+
+watch(props, () => {
+  subCategories.value = props.subCategories;
+})
 </script>
 
 <template>
-    <el-menu-item v-for="(subCategory, idx) in subCategories" :key="idx">
-        <a :href="`posts?category=${subCategory.code}`"> {{ subCategory.name }} </a>
+  <el-menu-item-group>
+    <el-menu-item v-for="(subCategory, idx) in subCategories" :key="idx" :index="idx">
+        <a :href="`/posts?category=${subCategory.code}`"> {{ subCategory.name }} </a>
     </el-menu-item>
+  </el-menu-item-group>
     <!-- <a href="#">{{ props.category.name }} / {{ props.category.code }}</a> -->
 </template>
 

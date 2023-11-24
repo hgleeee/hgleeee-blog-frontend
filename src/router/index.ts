@@ -4,6 +4,7 @@ import WriteView from '@/views/WriteView.vue'
 import PostPageView from '@/views/PostPageView.vue'
 import SignupView from '@/views/SignupView.vue'
 import PostView from '@/views/PostView.vue'
+import CategoryUpdateView from '@/views/CategoryUpdateView.vue'
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -32,6 +33,11 @@ const router = createRouter({
       path: '/post/:id',
       name: 'post',
       component: PostView
+    },
+    {
+      path: '/admin/category',
+      name: 'category',
+      component: CategoryUpdateView,
     }
     // {
     //   path: '/about',
