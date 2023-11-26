@@ -1,22 +1,22 @@
 <script setup lang="ts">
 import { ref, onMounted } from 'vue'
 import { useRoute } from 'vue-router';
-import { usePostStore } from '@/stores/post.js'
+import { usePostPreviewStore } from '@/stores/postPreview.js'
 import { storeToRefs } from 'pinia';
 
 const tableHead: Array<string> = ['카테고리', '제목', '날짜', '조회'];
-const postStore = usePostStore();
+const postPreviewStore = usePostPreviewStore();
 const currentPage = ref(1);
 const route = useRoute();
 const code = route.params.code;
-const { tableData, pageSize } = storeToRefs(postStore);
+const { tableData, pageSize } = storeToRefs(postPreviewStore);
 
 const movePage = function() {
-    postStore.fetchPostPreviews(code as string, currentPage.value);
+    postPreviewStore.fetchPostPreviews(code as string, currentPage.value);
 }
 
 onMounted(() => {
-    postStore.fetchPostPreviews(code as string, currentPage.value);
+    postPreviewStore.fetchPostPreviews(code as string, currentPage.value);
 });
 </script>
 
@@ -34,7 +34,7 @@ onMounted(() => {
                 <tbody>
                     <tr v-for="(data, i) in tableData" :key="i">
                         <td>{{ data.categoryName }}</td>
-                        <td><a href="#">{{ data.title }}</a></td>
+                        <td><a :href="`/${data.id}`">{{ data.title }}</a></td>
                         <td>{{ data.date }}</td>
                         <td>{{ data.viewCount }}</td>
                     </tr>
