@@ -67,6 +67,10 @@ const submitReply = function() {
   commentStore.registerComment(replyRegisterForm);
 }
 
+const editPost = function() {
+  window.location.href=`/edit/${postId}`;
+}
+
 </script>
 
 <template>
@@ -82,6 +86,9 @@ const submitReply = function() {
       </div>
     </div>
     <div id="body"></div>
+    <div id="edit-area">
+      <a :href="`/edit/${postId}`">글 수정</a>
+    </div>
     <div id="footer">
       <h4>댓글 : {{ commentsInfo.totalCommentCount }}</h4>
       <div v-if="!commentsInfo.totalCommentCount" style="margin-left: 20px;">
@@ -132,7 +139,6 @@ const submitReply = function() {
           </button>
         </div>
       </div>
-
     </div>
   </div>
   
@@ -193,10 +199,23 @@ $main-color: #FF5675;
 
 #body {
   padding: 20px;
+  margin-bottom: 40px;
+}
+
+#edit-area {
+  display: flex;
+  justify-content: flex-end;
+  &>a {
+    text-decoration: none;
+    color: #ff5656;
+    &:hover {
+      font-weight: bold;
+    }
+  }
 }
 
 #footer {
-  margin: 50px 0 0 0;
+  margin: 10px 0 0 0;
 
   &>h4 {
     padding: 10px;

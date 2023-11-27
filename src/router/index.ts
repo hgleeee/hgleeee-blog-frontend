@@ -38,6 +38,11 @@ const router = createRouter({
       path: '/admin/category',
       name: 'category',
       component: CategoryUpdateView,
+    },
+    {
+      path: '/edit/:id',
+      name: 'edit',
+      component: WriteView,
     }
     // {
     //   path: '/about',
