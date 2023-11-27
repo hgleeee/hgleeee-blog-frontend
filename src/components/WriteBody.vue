@@ -1,35 +1,41 @@
 <script lang="ts" setup>
 import StarterKit from '@tiptap/starter-kit'
 import type { UploadFile } from 'element-plus'
-import { ref, computed, watch, onMounted } from 'vue'
+import { computed, watch, onUpdated } from 'vue'
 import type { Ref } from 'vue' 
 import Image from '@tiptap/extension-image'
 import { Editor, EditorContent } from '@tiptap/vue-3'
+import { useWrittenPostStore } from '@/stores/writtenPost.js'
+import { useFileStore } from '@/stores/file.js'
+import { storeToRefs } from 'pinia'
 
+const writtenPostStore = useWrittenPostStore();
+const { writtenPost } = storeToRefs(writtenPostStore);
+const fileStore = useFileStore();
+const { toAttachImage } = storeToRefs(fileStore);
 
-const emit = defineEmits(['updateEditor', 'postAttachImage']);
-const props = defineProps(['image', 'content']);
-
-const editor = new Editor({
+const editor: Editor = new Editor({
     extensions: [
         StarterKit,
         Image,
     ],
-    content: props.content,
+    // content: writtenPost.value.content,
     onUpdate() {
-        emit('updateEditor', editor.getHTML())
+        writtenPost.value.content = editor.getHTML();
     }
 })
 
-const toAttachImage: Ref<any> = computed(() => {
-    return props.image;
+
+onUpdated(() => {
+    if (editor.getHTML() !== writtenPost.value.content) {
+        editor.commands.setContent(writtenPost.value.content);
+    }
 })
 
 watch(toAttachImage, () => {
-    if (toAttachImage.value === null) return;
-    console.log(toAttachImage.value.url);
-    editor.chain().focus().setImage({ src: toAttachImage.value.url }).run();
-    emit('postAttachImage');
+    if (toAttachImage.value === undefined || toAttachImage.value.url === null) return;
+    editor.chain().focus().setImage({ src: toAttachImage.value.url! }).run();
+    toAttachImage.value = undefined;
 })
 
 // onMounted(() => {

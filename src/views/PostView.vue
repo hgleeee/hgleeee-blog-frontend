@@ -1,83 +1,75 @@
 <script setup lang="ts">
-import { ref, reactive, onMounted } from 'vue'
+import { ref, onBeforeMount, onUpdated, watch } from 'vue'
 import { useRoute } from 'vue-router'
-import axios from 'axios'
-
-type Post = {
-  title: string,
-  content: string,
-  createdAt: Date,
-  view: number,
-}
-
-type Comment = {
-  authorName: string,
-  content: string,
-  depth: number,
-  createdAt: Date,
-  deletedAt: Date | null,
-}
-
-const post: Post = reactive({
-  title: '하이하이',
-  content: '<p>하이용</p>',
-  createdAt: new Date,
-  view: 126,
-})
-
-const comments: Array<Comment>= [
-  {authorName: 'hgleee', content: '11안녕안녕1111111111111111111111111111111etafawrewaaaaaaaaaaa1111111111111etafawrewaaaaaaa1111111111111etaffadfaewfawrfawawrewaaaaaaa1111111111111etafawrewaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa', depth: 0, createdAt: new Date, deletedAt: null,},
-  {authorName: 'abcdef', content: '댓글입니다21안녕안녕1111111111111111111111111111111etafawrewaaaaaaaaaaa1111111111111etafawre1안녕안녕1111111111111111111111111111111etafawrewaaaaaaaaaaa1111111111111etafawre1안녕안녕1111111111111111111111111111111etafawrewaaaaaaaaaaa1111111111111etafawre1안녕안녕1111111111111111111111111111111etafawrewaaaaaaaaaaa1111111111111etafawre1안녕안녕1111111111111111111111111111111etafawrewaaaaaaaaaaa1111111111111etafawre', depth: 1, createdAt: new Date, deletedAt: null,},
-  {authorName: '123456', content: '댓글입니다3', depth: 2, createdAt: new Date, deletedAt: null,},
-  {authorName: '123', content: '댓글입니다4', depth: 3, createdAt: new Date, deletedAt: null,},
-  {authorName: 'hgleee', content: '댓글입니다4', depth: 0, createdAt: new Date, deletedAt: null,},
-  {authorName: 'hgleee', content: '댓글입니다5', depth: 1, createdAt: new Date, deletedAt: null,},
-  {authorName: 'hgleee', content: '댓글입니다6', depth: 0, createdAt: new Date, deletedAt: null,},
-]
+import { usePostStore } from '@/stores/post.js'
+import { type CommentRegisterForm, useCommentStore } from '@/stores/comment.js'
+import { storeToRefs } from 'pinia';
+import { dateExpression } from '@/stores/utils';
 
 const route = useRoute();
 const commentText = ref('');
 const replyText = ref('');
+const postId = route.params.id;
+const postStore = usePostStore();
+const { postRender } = storeToRefs(postStore);
+const commentStore = useCommentStore();
+const { commentsInfo } = storeToRefs(commentStore);
+const currentPage = ref(0);
+const parentIdClicked = ref('');
 
-const dateExpression = function(date: Date) {
-  var year = date.getFullYear();
-  var month = ("0" + (1 + date.getMonth())).slice(-2);
-  var day = ("0" + date.getDate()).slice(-2);
-  const yearMonth = year + "-" + month + "-" + day;
+onBeforeMount(() => {
+  postStore.fetchPost(BigInt(postId as string));
+  commentStore.fetchCommentsInfo(BigInt(postId as string))
+    .then(() => {
+      currentPage.value = Math.ceil(Number(commentsInfo.value.totalCommentCount) / 10);
+    });
+  }
+)
 
-  const time = date.getHours() + ":" + ("0" + date.getMinutes()).slice(-2);
-  return yearMonth + " " + time;
-}
+onUpdated(() => {
+  const bodyTarget = document.getElementById('body')!;
+  bodyTarget.innerHTML = postRender.value.content;
+})
 
-const openReplyArea = function(idx: number) {
+watch(currentPage, () => {
+  console.log(currentPage.value);
+  commentStore.fetchCommentsInfo(BigInt(postId as string), currentPage.value);
+})
+
+const openReplyArea = function(idx: number, id: string) {
   const replyArea = document.getElementById('reply-input')!;
-  console.log(document.getElementById('reply-input-area'+idx)!.childElementCount);
-  if (replyArea.style.display !== 'none' && document.getElementById('reply-input-area'+idx)!.childElementCount >= 1) {
+  // console.log(document.getElementById('reply-input-area'+idx)!.childElementCount);
+  parentIdClicked.value = id;
+  if (replyArea.style.display !== 'none' && document.getElementById(`reply-input-area-${idx}`)!.childElementCount >= 1) {
     replyArea.style.display = 'none';
     return;
   }
   replyArea.style.display = 'flex';
   replyText.value = '';
-  document.getElementById('reply-input-area' + idx)!.appendChild(replyArea);
+  document.getElementById(`reply-input-area-${idx}`)!.appendChild(replyArea);
 }
 
-onMounted(() => {
-  const postId = route.params.id;
-  console.log(postId);
-  axios.get("/api/post/" + postId)
-        .then((result) => {
-          post.title = result.data.title;
-          post.content = result.data.content;
-          post.createdAt = result.data.createdAt;
-          
-          const bodyTarget = document.getElementById('body')!;
-          bodyTarget.innerHTML = post.content;
-        })
-        .catch((error) => {
-          console.log(error)
-        });
-})
+const submitComment = function() {
+  const commentRegisterForm: CommentRegisterForm = {
+    'postId': postId as string,
+    'parentCommentId': null,
+    'content': commentText.value,
+  };
+  commentStore.registerComment(commentRegisterForm);
+}
 
+const submitReply = function() {
+  const replyRegisterForm: CommentRegisterForm = {
+    'postId': postId as string,
+    'parentCommentId': parentIdClicked.value,
+    'content': replyText.value,
+  };
+  commentStore.registerComment(replyRegisterForm);
+}
+
+const editPost = function() {
+  window.location.href=`/edit/${postId}`;
+}
 
 </script>
 
@@ -85,45 +77,51 @@ onMounted(() => {
   <div id="container">
     <div id="header">
       <div id="title">
-        <h3>{{ post.title }}</h3>
-        <div>{{ post.createdAt }}</div>
+        <h3>{{ postRender.title }}</h3>
+        <div>{{ postRender.createdAt }}</div>
       </div>
       <div id="meta">
-        <div>조회 수 {{ post.view }}</div>
+        <div>조회 수 {{ postRender.viewCount }}</div>
         <div>댓글 {{ 0 }}</div>
       </div>
     </div>
     <div id="body"></div>
+    <div id="edit-area">
+      <a :href="`/edit/${postId}`">글 수정</a>
+    </div>
     <div id="footer">
-      <h4>댓글 : {{ comments.length }}</h4>
-      <div v-if="comments.length === 0">
+      <h4>댓글 : {{ commentsInfo.totalCommentCount }}</h4>
+      <div v-if="!commentsInfo.totalCommentCount" style="margin-left: 20px;">
         등록된 댓글이 없습니다.
       </div>
 
       <ul class="comment">
-        <li v-for="(comment, i) in comments" :key="i">
+        <li v-for="(comment, i) in commentsInfo.comments" :key="i">
           <div class="comment-area">
-            <div class="reply-head" v-if="comment.depth > 0">
-              <span class="reply-blank" v-for="n in (comment.depth-1)" :key="n"></span>
+            <div class="reply-head" v-if="comment.level > 0">
+              <span class="reply-blank" v-for="n in (comment.level-1)" :key="n"></span>
               <font-awesome-icon icon="share" flip="vertical" style="align-items: center;" />
             </div>
             <div class="comment-name-box">
               {{ comment.authorName }}
             </div>
             <div class="comment-content-box">
-              <p @click="openReplyArea(i)">{{ comment.content }}</p>
+              <p @click="openReplyArea(i, comment.id)">{{ comment.content }}</p>
             </div>
             <div class="comment-etc-box">
-              {{ dateExpression(comment.createdAt) }}
+              {{ dateExpression(new Date(comment.createdAt)) }}
             </div>
           </div>
-          <div :id="'reply-input-area' + i">
+          <div :id="`reply-input-area-${i}`">
           </div>
         </li>
       </ul>
 
       <div id="pagination">
-        <el-pagination class="custom-pagination" layout="prev, pager, next" :total="60" />
+        <el-pagination class="custom-pagination" 
+          layout="prev, pager, next" 
+          :total="commentsInfo.totalCommentCount" 
+          v-model:current-page="currentPage"/>
       </div>
       
       <div id="comment-input">
@@ -136,12 +134,11 @@ onMounted(() => {
           />
         </div>
         <div class="button-area">
-          <button type="button">
+          <button type="button" @click="submitComment()">
             등록
           </button>
         </div>
       </div>
-
     </div>
   </div>
   
@@ -156,7 +153,7 @@ onMounted(() => {
       />
     </div>
     <div class="button-area">
-      <button type="button">
+      <button type="button" @click="submitReply()">
         등록
       </button>
     </div>
@@ -202,10 +199,23 @@ $main-color: #FF5675;
 
 #body {
   padding: 20px;
+  margin-bottom: 40px;
+}
+
+#edit-area {
+  display: flex;
+  justify-content: flex-end;
+  &>a {
+    text-decoration: none;
+    color: #ff5656;
+    &:hover {
+      font-weight: bold;
+    }
+  }
 }
 
 #footer {
-  margin: 50px 0 0 0;
+  margin: 10px 0 0 0;
 
   &>h4 {
     padding: 10px;

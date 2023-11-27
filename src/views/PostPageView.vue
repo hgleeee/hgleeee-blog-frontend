@@ -1,30 +1,22 @@
 <script setup lang="ts">
-import { reactive, onMounted } from 'vue'
-
-interface TableData {
-    category: string,
-    title: string,
-    date: string,
-    view: number,
-}
+import { ref, onMounted } from 'vue'
+import { useRoute } from 'vue-router';
+import { usePostPreviewStore } from '@/stores/postPreview.js'
+import { storeToRefs } from 'pinia';
 
 const tableHead: Array<string> = ['카테고리', '제목', '날짜', '조회'];
+const postPreviewStore = usePostPreviewStore();
+const currentPage = ref(1);
+const route = useRoute();
+const code = route.params.code;
+const { tableData, pageSize } = storeToRefs(postPreviewStore);
 
-const tableData: Array<TableData> = reactive([
-    {category:'spring', title:'hello1', date:'1분 전', view:1},
-    {category:'spring', title:'hello1', date:'1분 전', view:1},
-    {category:'spring', title:'hello1', date:'1분 전', view:1},
-    {category:'spring', title:'hello1', date:'1분 전', view:1},
-    {category:'spring', title:'hello1', date:'1분 전', view:1},
-    {category:'spring', title:'hello1', date:'1분 전', view:1},
-    {category:'spring', title:'hello1', date:'22-10-06', view:1},
-    {category:'spring', title:'hello1', date:'22-10-05', view:1},
-]);
-
-const pageSize = 20;
+const movePage = function() {
+    postPreviewStore.fetchPostPreviews(code as string, currentPage.value);
+}
 
 onMounted(() => {
-
+    postPreviewStore.fetchPostPreviews(code as string, currentPage.value);
 });
 </script>
 
@@ -41,20 +33,22 @@ onMounted(() => {
                 </thead>
                 <tbody>
                     <tr v-for="(data, i) in tableData" :key="i">
-                        <td>{{ data.category }}</td>
-                        <td><a href="#">{{ data.title }}</a></td>
+                        <td>{{ data.categoryName }}</td>
+                        <td><a :href="`/${data.id}`">{{ data.title }}</a></td>
                         <td>{{ data.date }}</td>
-                        <td>{{ data.view }}</td>
+                        <td>{{ data.viewCount }}</td>
                     </tr>
                 </tbody>
             </table>
         </div>
         <div id="pagination">
             <el-pagination
-                :page-size="pageSize"
+                @click="movePage"
+                v-model:current-page="currentPage"
+                :page-size="10"
                 :pager-count="11"
                 layout="prev, pager, next"
-                :total="1000"
+                :total="pageSize"
             />
         </div>
     </div>

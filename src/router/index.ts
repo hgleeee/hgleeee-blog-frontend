@@ -20,7 +20,7 @@ const router = createRouter({
       component: WriteView
     },
     {
-      path: '/posts',
+      path: '/posts/:code',
       name: 'posts',
       component: PostPageView
     },
@@ -30,7 +30,7 @@ const router = createRouter({
       component: SignupView
     },
     {
-      path: '/post/:id',
+      path: '/:id',
       name: 'post',
       component: PostView
     },
@@ -38,6 +38,11 @@ const router = createRouter({
       path: '/admin/category',
       name: 'category',
       component: CategoryUpdateView,
+    },
+    {
+      path: '/edit/:id',
+      name: 'edit',
+      component: WriteView,
     }
     // {
     //   path: '/about',

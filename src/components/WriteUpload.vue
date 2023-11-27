@@ -1,41 +1,50 @@
 <script lang="ts" setup>
-import { ref, reactive } from 'vue'
+import { ref, onMounted, onUnmounted } from 'vue'
 import { Delete, Download, Plus, ZoomIn } from '@element-plus/icons-vue'
+import type { UploadFile } from 'element-plus'
+import { useFileStore } from '@/stores/file.js'
+import { storeToRefs } from 'pinia';
 
-import type { UploadFile, UploadProps } from 'element-plus'
-
-const dialogImageUrl = ref('')
-const dialogVisible = ref(false)
-const disabled = ref(false)
-const imageList: UploadFile[] = reactive([]);
-
-const handleRemove: UploadProps['onRemove'] = (uploadFile, uploadFiles) => {
-    for (let i=0; i<uploadFiles.length; ++i) {
-        if (uploadFiles[i].url === uploadFile.url) {
-            uploadFiles.splice(i, 1);
-        }
-    }
-}
+const dialogImageUrl = ref('');
+const dialogVisible = ref(false);
+const disabled = ref(false);
+const fileStore = useFileStore();
+const { imageList } = storeToRefs(fileStore);
 
 const handlePictureCardPreview = (file: UploadFile) => {
   dialogImageUrl.value = file.url!
   dialogVisible.value = true
 }
 
-const emit = defineEmits(['attachImage']);
+const props = defineProps(['postId']);
+const postId: string = props.postId;
 
-const attachImage = (file: UploadFile) => {
-    emit('attachImage', file);
+const beforeUpload = function() {
+    console.log(postId);
 }
+
+const handleError = function(error: Error) {
+    console.log(error);
+}
+
+onMounted(() => {
+    
+})
+
+onUnmounted(() => {
+    
+});
 
 </script>
 
 <template>
 <el-upload 
     v-model:file-list="imageList"
-    action="#" 
+    :action="`/api/post-image/upload/${postId}`"
+    :before-upload="beforeUpload"
+    :on-success="fileStore.handleSuccess" 
+    :on-error="handleError"
     list-type="picture-card" 
-    :auto-upload="false"
 >
     <el-icon><Plus /></el-icon>
 
@@ -49,14 +58,14 @@ const attachImage = (file: UploadFile) => {
                 <span
                     v-if="!disabled"
                     class="el-upload-list__item-delete"
-                    @click="attachImage(file)"
+                    @click="fileStore.attachImage(file)"
                 >
                     <el-icon><Download /></el-icon>
                 </span>
                 <span
                     v-if="!disabled"
                     class="el-upload-list__item-delete"
-                    @click="handleRemove(file, imageList)"
+                    @click="fileStore.handleRemove(file, imageList)"
                 >
                     <el-icon><Delete /></el-icon>
                 </span>
