@@ -22,4 +22,7 @@ const { sortedPermCategories } = storeToRefs(categoryStore);
 </template>
 
 <style scoped>
+.el-scrollbar {
+    width: 250px;
+}
 </style>

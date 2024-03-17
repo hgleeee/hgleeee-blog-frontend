@@ -1,44 +1,44 @@
 <script setup lang="ts">
-import { ref, onBeforeMount, onUpdated, watch } from 'vue'
+import { ref, onBeforeUpdate, onUpdated, watch, watchEffect } from 'vue'
 import { useRoute } from 'vue-router'
 import { usePostStore } from '@/stores/post.js'
-import { type CommentRegisterForm, useCommentStore } from '@/stores/comment.js'
+import { type CommentRegisterForm, useCommentStore, commentState } from '@/stores/comment.js'
 import { storeToRefs } from 'pinia';
-import { dateExpression } from '@/stores/utils';
+import { dateExpression, convertToString } from '@/stores/utils';
 
 const route = useRoute();
 const commentText = ref('');
 const replyText = ref('');
-const postId = route.params.id;
+let postId = convertToString(route.params.id);
 const postStore = usePostStore();
 const { postRender } = storeToRefs(postStore);
 const commentStore = useCommentStore();
 const { commentsInfo } = storeToRefs(commentStore);
-const currentPage = ref(0);
 const parentIdClicked = ref('');
-
-onBeforeMount(() => {
-  postStore.fetchPost(BigInt(postId as string));
-  commentStore.fetchCommentsInfo(BigInt(postId as string))
-    .then(() => {
-      currentPage.value = Math.ceil(Number(commentsInfo.value.totalCommentCount) / 10);
-    });
-  }
-)
 
 onUpdated(() => {
   const bodyTarget = document.getElementById('body')!;
   bodyTarget.innerHTML = postRender.value.content;
 })
 
-watch(currentPage, () => {
-  console.log(currentPage.value);
-  commentStore.fetchCommentsInfo(BigInt(postId as string), currentPage.value);
-})
+watch(
+  () => commentState.postId, 
+  () => {
+    commentState.currentPage = 0;
+    commentStore.fetchCommentsInfo();
+  }
+);
+
+watch(
+  () => commentState.currentPage, 
+  (newValue, oldValue) => {
+    if (oldValue === 0) return;
+    commentStore.fetchCommentsInfo();
+  }
+);
 
 const openReplyArea = function(idx: number, id: string) {
   const replyArea = document.getElementById('reply-input')!;
-  // console.log(document.getElementById('reply-input-area'+idx)!.childElementCount);
   parentIdClicked.value = id;
   if (replyArea.style.display !== 'none' && document.getElementById(`reply-input-area-${idx}`)!.childElementCount >= 1) {
     replyArea.style.display = 'none';
@@ -48,6 +48,7 @@ const openReplyArea = function(idx: number, id: string) {
   replyText.value = '';
   document.getElementById(`reply-input-area-${idx}`)!.appendChild(replyArea);
 }
+
 
 const submitComment = function() {
   const commentRegisterForm: CommentRegisterForm = {
@@ -121,7 +122,7 @@ const editPost = function() {
         <el-pagination class="custom-pagination" 
           layout="prev, pager, next" 
           :total="commentsInfo.totalCommentCount" 
-          v-model:current-page="currentPage"/>
+          v-model:current-page="commentState.currentPage"/>
       </div>
       
       <div id="comment-input">

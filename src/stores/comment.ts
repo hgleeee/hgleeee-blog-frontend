@@ -1,5 +1,5 @@
 import { defineStore } from 'pinia'
-import { type Ref, ref, computed } from 'vue'
+import { type Ref, ref, reactive } from 'vue'
 import { formatTimeAgo } from '@/stores/utils.js'
 import axios from 'axios'
 
@@ -20,26 +20,40 @@ export type CommentRegisterForm = {
 
 export type Comments = {
     comments: Comment[],
-    totalCommentCount: bigint,
+    totalCommentCount: number,
 }
 
+export type CommentState = {
+    currentPage: number,
+    postId: bigint,
+}
+
+export const commentState: CommentState = reactive({currentPage: -1, postId: 0n});
+//export const currentPage: Ref<number> = ref(0);
+
+
 export const useCommentStore = defineStore('comment', () => {
+
     const commentsInfo: Ref<Comments>= ref({
         comments: [],
-        totalCommentCount: BigInt(0),
+        totalCommentCount: 0,
     })
 
-    function fetchCommentsInfo(postId: bigint, pageNo?: number): Promise<void> {
-        if (pageNo === undefined) {
-            return axios.get(`/api/comment/comments?postId=${postId}`)
-            .then((result) => {
-                commentsInfo.value = result.data;
-            })
-            .catch(() => {
-                console.log("댓글 불러오기에 실패하였습니다.");
-            });
+    function fetchCommentsInfo(): void {
+        if (commentState.currentPage === 0) {
+            console.log("hello");
+            axios.get(`/api/comment/comments?postId=${commentState.postId}`)
+                .then((result) => {
+                    commentsInfo.value = result.data;
+                    console.log(commentsInfo.value.totalCommentCount);
+                    commentState.currentPage = Math.ceil(commentsInfo.value.totalCommentCount / 10);
+                })
+                .catch(() => {
+                    console.log("댓글 불러오기에 실패하였습니다.");
+                });
+            return;
         }
-        return axios.get(`/api/comment/comments?postId=${postId}&pageNo=${pageNo}`)
+        axios.get(`/api/comment/comments?postId=${commentState.postId}&pageNo=${commentState.currentPage}`)
             .then((result) => {
                 commentsInfo.value = result.data;
             })

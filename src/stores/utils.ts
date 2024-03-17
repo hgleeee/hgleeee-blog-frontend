@@ -26,4 +26,24 @@ export function dateExpression(date: Date): string {
   
     const time = date.getHours() + ":" + ("0" + date.getMinutes()).slice(-2);
     return `${year}-${month}-${day} ${time}`
+}
+
+export function dateExpressionBrief(date: Date): string {
+    const year = date.getFullYear();
+    const month = ("0" + (1 + date.getMonth())).slice(-2);
+    const day = ("0" + date.getDate()).slice(-2);
+    return `${month}월 ${day}일, ${year}년`
+}
+
+export function convertToString(value: string | string[]) : string {
+  if (typeof value === 'string') {
+    return value;
+  } else {
+    return value.join(', ');
   }
+}
+
+export function manageNotAuthorizedAccess() {
+  alert("해당 페이지에 접근 권한이 없습니다.");
+  window.location.href = '/';
+}
