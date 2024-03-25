@@ -1,6 +1,8 @@
 import { defineStore } from 'pinia'
 import { type Ref, ref, computed } from 'vue'
+import { useRouter } from 'vue-router'
 import axios from 'axios'
+import { useCookies } from 'vue3-cookies'
 import api from '@/stores/api.js'
 
 export type LoginForm = {
@@ -22,6 +24,8 @@ export type UserInfo = {
 }
 
 export const useUserStore = defineStore('user', () => {
+    const router = useRouter();
+
     const userInfo = ref<UserInfo>({
         name: '',
         email: '',
@@ -33,6 +37,7 @@ export const useUserStore = defineStore('user', () => {
         axios.post('/api/auth/login', loginForm)
             .then((response) => {
                 setAccessToken(response.data.accessToken);
+                window.location.reload();
             })
             .catch(() => {
                 alert("로그인 실패!");
@@ -40,13 +45,6 @@ export const useUserStore = defineStore('user', () => {
     }
 
     const fetchUserInfo = async function() {
-        // axios.get('/api/user/info')
-        //     .then((response) => {
-        //         userInfo.value = response.data;
-        //     })
-        //     .catch(() => {
-        //         console.log("유저 정보를 불러오기 위해서는 로그인 필요");
-        //     });
         console.log(getAccessToken());
         api.get('/api/user/info')
             .then((response) => {
@@ -58,7 +56,16 @@ export const useUserStore = defineStore('user', () => {
     }
 
     function logout(): void {
-        localStorage.removeItem("accessToken");
+        api.post('/api/auth/logout')
+            .then(() => {
+                localStorage.removeItem("accessToken");
+                const { cookies } = useCookies();
+                cookies.remove("refreshToken");
+                router.go(0);
+            })
+            .catch((error) => {
+                console.log(error);
+            });
     }
 
     function setAccessToken(newAccessToken: string): void {

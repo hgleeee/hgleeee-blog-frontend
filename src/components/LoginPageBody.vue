@@ -2,9 +2,11 @@
 import { reactive } from 'vue'
 import type { Ref } from 'vue'
 import axios from 'axios'
+import { useRouter } from 'vue-router'
 import type { LoginForm } from '@/stores/user.js'
 import { useUserStore } from '@/stores/user.js'
 
+const router = useRouter();
 const userStore = useUserStore();
 const loginForm: LoginForm = reactive({
     email: '',
@@ -12,19 +14,15 @@ const loginForm: LoginForm = reactive({
 })
 
 const moveSignupPage = function() {
-    // window.location.href='/join';
-    axios.post('/api/auth/reissue', loginForm)
-        .then()
-        .catch();
+    window.location.href='/join';
 }
 
 const loginHandle = function() {
    try { 
     userStore.login(loginForm);
    } catch (e) {
-    return;
+    console.log(e);
    }
-   window.location.reload;
 }
 
 

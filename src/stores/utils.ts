@@ -43,6 +43,14 @@ export function convertToString(value: string | string[]) : string {
   }
 }
 
+export function reload() {
+  const map = new Map<string, string>();
+  localStorage.array.forEach(element => {
+    
+  });
+  window.location.reload();
+}
+
 export function manageNotAuthorizedAccess() {
   alert("해당 페이지에 접근 권한이 없습니다.");
   window.location.href = '/';

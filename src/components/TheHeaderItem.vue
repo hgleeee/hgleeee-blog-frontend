@@ -38,7 +38,6 @@ const showNotifications = function() {
 const handleLogout = function() {
   alert("로그아웃 되었습니다.");
   userStore.logout();
-  router.go(0);
 }
 
 </script>
