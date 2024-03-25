@@ -11,7 +11,7 @@ watch(props, () => {
 <template>
   <el-menu-item-group>
     <el-menu-item v-for="(subCategory, idx) in subCategories" :key="idx" :index="idx">
-        <a :href="`/posts?category=${subCategory.code}`"> {{ subCategory.name }} </a>
+        <a :href="`/posts/${subCategory.code}`"> {{ subCategory.name }} </a>
     </el-menu-item>
   </el-menu-item-group>
     <!-- <a href="#">{{ props.category.name }} / {{ props.category.code }}</a> -->
@@ -23,6 +23,7 @@ a {
     text-decoration: none;
     color: black;
     text-decoration: solid;
+    width: 100%;
 }
 a:visited {
   text-decoration: none;

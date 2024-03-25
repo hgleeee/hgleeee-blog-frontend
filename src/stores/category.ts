@@ -32,7 +32,6 @@ export const useCategoryStore = defineStore('category', () => {
     const categories: Ref<Category[]> = ref([]);
 
     onBeforeMount(() => {
-        console.log("hello!!");
         fetchData();
     });
     

@@ -1,9 +1,31 @@
 <script lang="ts" setup>
-import { ref } from 'vue'
+import { reactive } from 'vue'
 import type { Ref } from 'vue'
+import axios from 'axios'
+import { useRouter } from 'vue-router'
+import type { LoginForm } from '@/stores/user.js'
+import { useUserStore } from '@/stores/user.js'
 
-const email: Ref<String> = ref('');
-const password: Ref<String> = ref('');
+const router = useRouter();
+const userStore = useUserStore();
+const loginForm: LoginForm = reactive({
+    email: '',
+    password: '',
+})
+
+const moveSignupPage = function() {
+    window.location.href='/join';
+}
+
+const loginHandle = function() {
+   try { 
+    userStore.login(loginForm);
+   } catch (e) {
+    console.log(e);
+   }
+}
+
+
 
 </script>
 <template>
@@ -11,7 +33,7 @@ const password: Ref<String> = ref('');
         <div>
             <el-input 
                 placeholder="이메일"
-                v-model="email"
+                v-model="loginForm.email"
                 type="text" 
                 class="id" 
             />
@@ -19,7 +41,7 @@ const password: Ref<String> = ref('');
         <div class="mt-2">
             <el-input 
                 placeholder="비밀번호"
-                v-model="password" 
+                v-model="loginForm.password" 
                 type="password" 
                 class="pwd" 
             />
@@ -27,66 +49,95 @@ const password: Ref<String> = ref('');
     </div>
     <div id="footer" class="mt-3">
         <div class="upper">
-            <el-button>
+            <el-button @click="loginHandle()">
                 로그인
             </el-button>
-            <el-button>
+            <el-button @click="moveSignupPage()">
                 회원가입
             </el-button>
         </div>
         <div class="lower">
-            <el-button>
-                Google로 로그인
-            </el-button>
-            <el-button>
-                Naver로 로그인
-            </el-button>
-            <el-button>
-                Github로 로그인
-            </el-button>
+            <div class="google-login">
+                <el-button class="social-button">
+                    <span class="icon">
+                        <font-awesome-icon icon="fa-brands fa-google" />
+                    </span>
+                    <span class="text">
+                        Google로 로그인
+                    </span>
+                </el-button>
+            </div>
+            <div class="naver-login">
+                <el-button class="social-button">
+                    <span class="icon" style="font-weight: bold;">
+                        <font-awesome-icon icon="fa-solid fa-n" />
+                    </span>
+                    <span class="text">
+                        Naver로 로그인
+                    </span>
+                </el-button>
+            </div>
+            <div class="github-login">
+                <el-button class="social-button">
+                    <span class="icon">
+                        <font-awesome-icon icon="fa-brands fa-github" />
+                    </span>
+                    <span class="text">
+                        Github로 로그인
+                    </span>
+                </el-button>
+            </div>
         </div>
     </div>
 </template>
 
-<style scoped>
+<style lang="scss" scoped>
 #footer {
     display: flex;
     flex-direction: column;
     justify-content: center;
     align-items: center;
-}
-#footer > div {
-    width: 100%;
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    align-items: center;
-}
-#footer > .upper {
-    flex-direction: row;
-}
-#footer > .upper > .el-button {
-    margin: 0 1px;
-}
-#footer .el-button {
-    width: 100%;
-}
-#footer > .lower {
-    width: 80%;
-    margin: 10px 0 0 0;
-}
-#footer > .lower > .el-button {
-    text-decoration:underline;
+
+    & > div {
+        width: 100%;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+    }
+
+    & > .upper {
+        flex-direction: row;
+        & > button {
+            margin: 0 1px;
+            width: 100%;
+        }
+    }
+
+    & > .lower {
+        margin: 10px 0 0 0;
+
+        & .social-button {
+            width: 300px;
+            text-decoration:underline;
+            font-size: 15px;
+            margin-top: 2px;
+            display: flex;
+
+            & .icon {
+                margin-right: 10px;
+            }
+        }
+    }
 }
 
-#footer > .lower > .el-button:nth-child(1) {
+#footer > .lower > .google-login > button {
     background-color: ivory;
 }
-#footer > .lower > .el-button:nth-child(2) {
-    color: white;
+#footer > .lower > .naver-login > button {
     background-color: green;
 }
-#footer > .lower > .el-button:nth-child(3) {
+#footer > .lower > .github-login > button {
     background-color: black;
 }
 </style>

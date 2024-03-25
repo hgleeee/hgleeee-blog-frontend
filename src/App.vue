@@ -4,6 +4,7 @@ import TheHeader from '@/components/TheHeader.vue'
 import TheFooter from '@/components/TheFooter.vue'
 import TheSidebar from '@/components/TheSidebar.vue'
 import LoginPageBody from '@/components/LoginPageBody.vue'
+import RightSideBody from '@/components/RightSideBody.vue'
 
 const visible = ref(false);
 const openLoginPage = function() {
@@ -30,22 +31,25 @@ const login = function() {
     <el-header>
       <TheHeader @click-login="openLoginPage"/>
     </el-header>
-    <el-container>
-      <el-aside>
+    <el-container class="sub-main">
+      <el-aside class="left-sidebar">
         <TheSidebar />
       </el-aside>
       <el-container>
         <el-main>
-          <el-scrollbar>
-            <div class="main-view">
+          <div id="wrapper-inner" style="height: auto !important">
+            <div class="center-view">
               <RouterView />
             </div>
-          </el-scrollbar>
+          </div>
         </el-main>
         <el-footer>
           <TheFooter />
         </el-footer>
       </el-container>
+      <el-aside class="right-sidebar">
+        <RightSideBody />
+      </el-aside>
     </el-container>
   </el-container>
 </template>
@@ -54,31 +58,49 @@ const login = function() {
 
 <style scoped>
 .main {
-  min-height: 800px;
+  min-height: 600px;
 }
 .main > .el-container {
   padding: 0 100px;
 }
 .main .el-header {
+  padding: 0;
   display: inline-flex;
   position: relative;
-  background: skyblue;
+  background: white;
   color: black;
 }
+.sub-main:nth-child(2) {
+  border-right: 1px solid #aaaaaa;
+} 
 .main .el-aside {
-  width: 200px;
-  min-height: 800px;
+  width: 260px;
+  min-height: 600px;
   color: black;
-  background: skyblue;
+  box-sizing: border-box;
+  background: white;
 }
-.main .el-footer {
-  background-color: sienna;
+
+.main .left-sidebar {
+  width: 250px;
+}
+
+.main .right-sidebar {
+  width: 300px;
 }
 .main .el-menu {
   border-right: none;
 }
 .main .el-main {
-  padding: 20px;
+  padding: 20px 20px;
+}
+
+#wrapper-inner {
+  display: flex;
+}
+
+.center-view {
+  width: 100%;
 }
 
 </style>

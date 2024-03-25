@@ -1,12 +1,23 @@
 <script lang="ts" setup>
-import { ref } from 'vue'
+import { ref, onMounted } from 'vue'
 import TheHeaderItem from '@/components/TheHeaderItem.vue'
+import { useUserStore } from '@/stores/user.js'
+import { storeToRefs } from 'pinia';
+
 const mainCategories = [
   {name: 'Blog', link: '/blog'}, 
   {name: 'Project', link: '/project'}, 
   {name: 'About Me', link: '/about'}
 ];
-const login = {name: '로그인', link: null}
+const login = {name: '로그인', link: null};
+
+const userStore = useUserStore();
+const { userInfo } = storeToRefs(userStore);
+
+onMounted(() => {
+  userStore.fetchUserInfo();
+  console.log(userInfo.value);
+});
 
 </script>
 
@@ -37,10 +48,10 @@ h1 {
   font-size: 1rem;
 }
 .el-row {
-  width: 1410px;
-  padding: 0 10px;
-  margin-left: auto;
-  margin-right: auto;
+  width: 100%;
+  padding: 0 200px;
+  box-sizing: border-box;
+  border-bottom: 1px solid #aaaaaa;
 }
 .el-col {
   display: flex;
@@ -64,7 +75,6 @@ li {
   list-style-type: none;
   align-items: center;
   justify-content: center;
-  background-color: aquamarine;
 }
 </style>
 
