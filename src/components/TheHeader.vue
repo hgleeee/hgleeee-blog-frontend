@@ -36,7 +36,7 @@ onMounted(() => {
     <el-col :span="4" class="right-part">
       <ul>
         <li>
-          <TheHeaderItem :category="login" @click-login="$emit('clickLogin')" />
+          <TheHeaderItem :category="login" />
         </li>
       </ul>
     </el-col>

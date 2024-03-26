@@ -3,16 +3,13 @@ import { ref } from 'vue'
 import { useUserStore } from '@/stores/user.js'
 import { storeToRefs } from 'pinia';
 import { useRouter } from 'vue-router';
-import {
-  Check,
-  CircleCheck,
-  CirclePlus,
-  CirclePlusFilled,
-  Plus,
-} from '@element-plus/icons-vue'
+import { useModalStateStore } from '@/stores/modalState';
 
 const userStore = useUserStore();
+const modalStateStore = useModalStateStore();
 const { userInfo } = storeToRefs(userStore);
+const { modalState } = storeToRefs(modalStateStore);
+
 const props = defineProps(['category']);
 const categoryName = props.category.name;
 const categoryLink = props.category.link;
@@ -28,11 +25,16 @@ const profileImageUrl = function() {
 const showText = ref(true);
 
 const clickChangeProfile = function() {
-  alert("clcik");
+  alert("click");
+  modalState.value.openChangeProfilePage();
 }
 
 const showNotifications = function() {
 
+}
+
+const handleLogin = function() {
+  modalState.value.openLoginPage();
 }
 
 const handleLogout = function() {
@@ -49,7 +51,7 @@ const handleLogout = function() {
         </div>
         <div v-else>
           <div v-if="userInfo.role === 'ANONYMOUS'">
-            <a @click="$emit('clickLogin')">{{ categoryName }}</a>
+            <a @click="handleLogin()">{{ categoryName }}</a>
           </div>
           <div v-else class="profile-box">
             <el-popover

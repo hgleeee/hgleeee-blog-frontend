@@ -5,7 +5,6 @@ const accessTokenKey: string = 'accessToken';
 // url 호출 시 기본 값 셋팅
 const api = axios.create({
   baseURL: "/",
-  headers: { "Content-type": "application/json" }, // data type
 });
 
 // Add a request interceptor
@@ -61,6 +60,12 @@ const refreshAccessToken = async function(originalRequest: any) {
   console.log('hello', accessToken);
   originalRequest.headers.authorization = `Bearer ${accessToken}`;
   localStorage.setItem(accessTokenKey, accessToken);
+}
+
+export const callApi = function(contentType: string) {
+  const instance = api;
+  instance.defaults.headers.common['Content-Type'] = contentType; // Content-Type 설정
+  return instance;
 }
 
 export default api;

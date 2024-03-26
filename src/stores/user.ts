@@ -4,6 +4,7 @@ import { useRouter } from 'vue-router'
 import axios from 'axios'
 import { useCookies } from 'vue3-cookies'
 import api from '@/stores/api.js'
+import { callApi } from '@/stores/api.js'
 
 export type LoginForm = {
     email: string,
@@ -32,6 +33,38 @@ export const useUserStore = defineStore('user', () => {
         role: 'ANONYMOUS',
         profileImageUrl: '',
     })
+
+    const changeProfileImage = function(file: Blob) {
+        const formData = new FormData(); 
+        formData.append('image', file);
+        return new Promise((resolve, reject) => {
+            // api({
+            //     headers: {
+            //         'Content-Type': 'multipart/form-data'
+            //     },
+            //     url: '/api/profile-image/upload',
+            //     method: 'POST',
+            //     data: formData,
+            // })
+            // .then((response) => {
+            //     resolve(response.data); // 성공 시 데이터를 resolve
+            // })
+            // .catch((error) => {
+            //     alert("업로드 중 문제가 발생하였습니다.");
+            //     reject(error); // 실패 시 에러를 reject
+            // });
+
+            callApi('multipart/form-data')
+                .post('/api/profile-image/upload', formData)
+                .then((response) => {
+                    resolve(response.data); // 성공 시 데이터를 resolve
+                })
+                .catch((error) => {
+                    alert("업로드 중 문제가 발생하였습니다.");
+                    reject(error); // 실패 시 에러를 reject
+                });
+        });
+    }
 
     const login = function(loginForm: LoginForm) {
         axios.post('/api/auth/login', loginForm)
@@ -76,5 +109,5 @@ export const useUserStore = defineStore('user', () => {
         return localStorage.getItem("accessToken");
     }
 
-    return { userInfo, login, fetchUserInfo, logout };
+    return { userInfo, login, fetchUserInfo, logout, changeProfileImage };
 });
