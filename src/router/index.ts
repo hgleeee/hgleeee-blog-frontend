@@ -5,6 +5,7 @@ import PostPageView from '@/views/PostPageView.vue'
 import SignupView from '@/views/SignupView.vue'
 import PostView from '@/views/PostView.vue'
 import CategoryUpdateView from '@/views/CategoryUpdateView.vue'
+import UnauthorizedPageView from '@/views/UnauthorizedPageView.vue'
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -43,6 +44,11 @@ const router = createRouter({
       path: '/edit/:id',
       name: 'edit',
       component: WriteView,
+    },
+    {
+      path: '/unauthorized',
+      name: 'unauthorized',
+      component: UnauthorizedPageView,
     }
     // {
     //   path: '/about',

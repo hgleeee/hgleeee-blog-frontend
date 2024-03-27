@@ -49,7 +49,7 @@ const { modalState } = storeToRefs(modalStateStore);
       </template>
       <LoginPageBody />
     </el-dialog>
-    <el-dialog v-model="modalState.modalStateMap[changeProfilePageVisible]" :width="800" :height="600" :lock-scroll="false">
+    <el-dialog v-model="modalState.modalStateMap[changeProfilePageVisible]" :width="800" :height="600" :lock-scroll="false" :destroy-on-close=true>
       <template #header="{ titleClass }">
         <div class="my-header">
           <h2 :class="titleClass">프로필 사진 변경</h2>

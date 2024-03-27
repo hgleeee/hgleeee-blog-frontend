@@ -15,7 +15,7 @@ const userStore = useUserStore();
 const { userInfo } = storeToRefs(userStore);
 
 onMounted(() => {
-  userStore.fetchUserInfo();
+  //userStore.fetchUserInfo();
   console.log(userInfo.value);
 });
 

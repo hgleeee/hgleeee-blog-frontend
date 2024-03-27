@@ -133,6 +133,10 @@ onBeforeMount(() => {
                     </div>
                 </div>
             </div>
+            <div>
+                <div>카테고리 수정</div>
+                <div>글 작성</div>
+            </div>
         </div>
     </div>
 </template>

@@ -1,20 +1,26 @@
 <script setup lang="ts">
 import { ref, onBeforeUpdate, onUpdated, watch, watchEffect } from 'vue'
-import { useRoute } from 'vue-router'
+import { useRoute, useRouter } from 'vue-router'
 import { usePostStore } from '@/stores/post.js'
+import { useReplyStore } from '@/stores/reply.js'
 import { type CommentRegisterForm, useCommentStore, commentState } from '@/stores/comment.js'
 import { storeToRefs } from 'pinia';
 import { dateExpression, convertToString } from '@/stores/utils';
+import CommentSection from '@/components/post/CommentSection.vue'
+import ReplySection from '@/components/post/ReplySection.vue'
 
 const route = useRoute();
-const commentText = ref('');
-const replyText = ref('');
-let postId = convertToString(route.params.id);
+const router = useRouter();
+const postId = convertToString(route.params.id);
+
 const postStore = usePostStore();
 const { postRender } = storeToRefs(postStore);
 const commentStore = useCommentStore();
 const { commentsInfo } = storeToRefs(commentStore);
+const replyStore = useReplyStore();
+
 const parentIdClicked = ref('');
+
 
 onUpdated(() => {
   const bodyTarget = document.getElementById('body')!;
@@ -40,36 +46,18 @@ watch(
 const openReplyArea = function(idx: number, id: string) {
   const replyArea = document.getElementById('reply-input')!;
   parentIdClicked.value = id;
+  console.log(replyArea);
   if (replyArea.style.display !== 'none' && document.getElementById(`reply-input-area-${idx}`)!.childElementCount >= 1) {
     replyArea.style.display = 'none';
     return;
   }
-  replyArea.style.display = 'flex';
-  replyText.value = '';
+  replyStore.resetReplyText();
+  replyArea.style.display = 'block';
   document.getElementById(`reply-input-area-${idx}`)!.appendChild(replyArea);
 }
 
-
-const submitComment = function() {
-  const commentRegisterForm: CommentRegisterForm = {
-    'postId': postId as string,
-    'parentCommentId': null,
-    'content': commentText.value,
-  };
-  commentStore.registerComment(commentRegisterForm);
-}
-
-const submitReply = function() {
-  const replyRegisterForm: CommentRegisterForm = {
-    'postId': postId as string,
-    'parentCommentId': parentIdClicked.value,
-    'content': replyText.value,
-  };
-  commentStore.registerComment(replyRegisterForm);
-}
-
 const editPost = function() {
-  window.location.href=`/edit/${postId}`;
+  router.push(`/edit/${postId}`);
 }
 
 </script>
@@ -125,40 +113,15 @@ const editPost = function() {
           v-model:current-page="commentState.currentPage"/>
       </div>
       
-      <div id="comment-input">
-        <div class="text-area">
-          <el-input
-            v-model="commentText"
-            :rows="2"
-            type="textarea"
-            placeholder="댓글을 입력해주세요"
-          />
-        </div>
-        <div class="button-area">
-          <button type="button" @click="submitComment()">
-            등록
-          </button>
-        </div>
-      </div>
+      <CommentSection />
+    </div>
+     <!-- 답글 입력할 때 필요한 파츠 -->
+    <div id="reply-input" style="display: none">
+      <ReplySection />
     </div>
   </div>
   
-  <!-- 답글 입력할 때 필요한 파츠 -->
-  <div id="reply-input">
-    <div class="text-area">
-      <el-input
-        v-model="replyText"
-        :rows="2"
-        type="textarea"
-        placeholder="답글을 입력해주세요"
-      />
-    </div>
-    <div class="button-area">
-      <button type="button" @click="submitReply()">
-        등록
-      </button>
-    </div>
-  </div>
+ 
 </template>
 
 <style lang="scss" scoped>
@@ -282,77 +245,16 @@ $main-color: #FF5675;
       }
     }
   }
-
-  &>#comment-input {
-    display: flex;
-    margin: 20px 5px 0 5px;
-    box-sizing: border-box;
-    border-top: $main-color 2px solid;
-    border-bottom: $main-color 2px solid;
-
-    &>div {
-      padding: 20px;
-      display: flex;
-    }
-    &>.text-area {
-      flex: 12;
-    }
-    &>.button-area {
-      flex: 1;
-
-      &>button {
-        width: 100%;
-        text-align: center;
-        cursor: pointer;
-        font-weight: bold;
-        color: $main-color;
-        border-color: $main-color;
-        &:hover {
-            background: $main-color;
-            color: white;
-        }
-      }
-    }
-  }
 }
 
 .comment-head {
   margin: 0 2px;
 }
 
-#reply-input {
-  display: none;
-  margin: 5px 2px 5px 30px;
-  box-sizing: border-box;
-  border: $gray-color 1px solid;
-
-  &>.text-area {
-    flex: 1;
-    padding: 20px;
-  }
-  &>.button-area {
-    display: flex;
-    padding: 20px;
-    &>button {
-      width: 80px;
-      text-align: center;
-      cursor: pointer;
-      font-weight: bold;
-      color: $gray-color;
-      border-color: $gray-color;
-      &:hover {
-          background: $gray-color;
-          color: white;
-      }
-    }
-  }
-}
-
 #pagination {
   display: flex;
   justify-content: center;
   align-items: center;
-
 }
 
 .custom-pagination {

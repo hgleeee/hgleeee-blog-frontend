@@ -25,7 +25,6 @@ const profileImageUrl = function() {
 const showText = ref(true);
 
 const clickChangeProfile = function() {
-  alert("click");
   modalState.value.openChangeProfilePage();
 }
 

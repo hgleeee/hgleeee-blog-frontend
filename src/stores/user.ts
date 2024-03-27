@@ -38,22 +38,6 @@ export const useUserStore = defineStore('user', () => {
         const formData = new FormData(); 
         formData.append('image', file);
         return new Promise((resolve, reject) => {
-            // api({
-            //     headers: {
-            //         'Content-Type': 'multipart/form-data'
-            //     },
-            //     url: '/api/profile-image/upload',
-            //     method: 'POST',
-            //     data: formData,
-            // })
-            // .then((response) => {
-            //     resolve(response.data); // 성공 시 데이터를 resolve
-            // })
-            // .catch((error) => {
-            //     alert("업로드 중 문제가 발생하였습니다.");
-            //     reject(error); // 실패 시 에러를 reject
-            // });
-
             callApi('multipart/form-data')
                 .post('/api/profile-image/upload', formData)
                 .then((response) => {
@@ -88,6 +72,13 @@ export const useUserStore = defineStore('user', () => {
             })
     }
 
+    const isAnonymous = function(): boolean {
+        if (userInfo.value.role === ('ANONYMOUS' as Role)) {
+          return true;
+        }
+        return false;
+      }
+
     function logout(): void {
         api.post('/api/auth/logout')
             .then(() => {
@@ -109,5 +100,5 @@ export const useUserStore = defineStore('user', () => {
         return localStorage.getItem("accessToken");
     }
 
-    return { userInfo, login, fetchUserInfo, logout, changeProfileImage };
+    return { userInfo, login, fetchUserInfo, logout, changeProfileImage, isAnonymous };
 });
