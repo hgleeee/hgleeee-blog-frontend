@@ -11,14 +11,6 @@ const mainCategories = [
 ];
 const login = {name: '로그인', link: null};
 
-const userStore = useUserStore();
-const { userInfo } = storeToRefs(userStore);
-
-onMounted(() => {
-  //userStore.fetchUserInfo();
-  console.log(userInfo.value);
-});
-
 </script>
 
 <template>

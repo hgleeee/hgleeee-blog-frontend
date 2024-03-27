@@ -3,6 +3,7 @@ import { useRouter } from 'vue-router';
 import { onBeforeMount, reactive } from 'vue';
 import { useSimplePostStore, useSimpleCommentStore } from '@/stores/postInMainPage.js'
 import { dateExpressionBrief } from '@/stores/utils.js'
+import { useUserStore } from '@/stores/user.js'
 import { storeToRefs } from 'pinia'
 const router = useRouter();
 
@@ -27,6 +28,7 @@ const isActive = (input: string) => {
     return tabNavMap.get(input);
 }
 
+const userStore = useUserStore();
 const simplePostStore = useSimplePostStore();
 const { bestFivePost, recentFivePost } = storeToRefs(simplePostStore);
 const simpleCommentStore = useSimpleCommentStore();
@@ -34,6 +36,14 @@ const { recentFiveComments } = storeToRefs(simpleCommentStore);
 
 const abc = function() {
     console.log(bestFivePost.value);
+}
+
+const moveToManageCategoryPage = function() {
+    router.push('admin/category');
+}
+
+const moveToWritePostPage = function() {
+    router.push('/admin/write');
 }
 
 onBeforeMount(() => {
@@ -133,15 +143,30 @@ onBeforeMount(() => {
                     </div>
                 </div>
             </div>
-            <div>
-                <div>카테고리 수정</div>
-                <div>글 작성</div>
+            <div class="admin-area" v-if="userStore.isAdmin()">
+                <a class='admin-button' @click="moveToManageCategoryPage()">카테고리 수정</a>
+                <a class='admin-button' @click="moveToWritePostPage()">글 작성</a>
             </div>
         </div>
     </div>
 </template>
 
 <style lang="scss" scoped>
+.admin-area {
+    padding: 100px 0 30px;
+    .admin-button {
+        padding: 2px 0;
+        color: #9A2EFE;
+        font-weight: 500;
+        font-size: 18px;
+        display: block;
+        &:hover {
+            cursor:pointer;
+            font-weight: 600;
+        }
+    }
+}
+
 .info-element {
     margin: 0 20px;
     display: flex;

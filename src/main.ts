@@ -1,5 +1,5 @@
 import { createApp } from 'vue'
-import { createPinia } from 'pinia'
+import { createPinia, storeToRefs } from 'pinia'
 
 import App from './App.vue'
 import router from './router'
@@ -40,7 +40,7 @@ router.beforeEach((to, from) => {
         commentState.currentPage = 0;
         commentStore.fetchCommentsInfo();
     }
-    if (to.path.startsWith('/admin')) {
+    if (to.path.startsWith('/admin') && userStore.isAdmin()) {
         router.push('/unauthorized')
     }
 })

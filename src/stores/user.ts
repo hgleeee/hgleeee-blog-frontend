@@ -77,7 +77,14 @@ export const useUserStore = defineStore('user', () => {
           return true;
         }
         return false;
-      }
+    }
+
+    const isAdmin = function(): boolean {
+        if (userInfo.value.role === ('ADMIN' as Role)) {
+            return true;
+          }
+          return false;
+    }
 
     function logout(): void {
         api.post('/api/auth/logout')
@@ -100,5 +107,5 @@ export const useUserStore = defineStore('user', () => {
         return localStorage.getItem("accessToken");
     }
 
-    return { userInfo, login, fetchUserInfo, logout, changeProfileImage, isAnonymous };
+    return { userInfo, login, fetchUserInfo, logout, changeProfileImage, isAnonymous, isAdmin };
 });
