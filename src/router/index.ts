@@ -5,6 +5,7 @@ import PostPageView from '@/views/PostPageView.vue'
 import SignupView from '@/views/SignupView.vue'
 import PostView from '@/views/PostView.vue'
 import CategoryUpdateView from '@/views/CategoryUpdateView.vue'
+import UnauthorizedPageView from '@/views/UnauthorizedPageView.vue'
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -15,7 +16,7 @@ const router = createRouter({
       component: HomeView
     },
     {
-      path: '/write',
+      path: '/admin/write',
       name: 'write',
       component: WriteView
     },
@@ -40,9 +41,14 @@ const router = createRouter({
       component: CategoryUpdateView,
     },
     {
-      path: '/edit/:id',
+      path: '/admin/edit/:id',
       name: 'edit',
       component: WriteView,
+    },
+    {
+      path: '/unauthorized',
+      name: 'unauthorized',
+      component: UnauthorizedPageView,
     }
     // {
     //   path: '/about',
@@ -52,7 +58,12 @@ const router = createRouter({
     //   // which is lazy-loaded when the route is visited.
     //   component: () => import('../views/AboutView.vue')
     // }
-  ]
+  ],
+  scrollBehavior (to, from, savedPosition) {
+    return {
+      top: 0
+    }
+  }
 })
 
 export default router

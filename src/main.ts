@@ -1,5 +1,5 @@
 import { createApp } from 'vue'
-import { createPinia } from 'pinia'
+import { createPinia, storeToRefs } from 'pinia'
 
 import App from './App.vue'
 import router from './router'
@@ -14,8 +14,9 @@ import { fab } from '@fortawesome/free-brands-svg-icons'
 
 import "bootstrap/dist/css/bootstrap-utilities.css"
 import { convertToString } from './stores/utils.js'
+import { useUserStore } from './stores/user'
 import { usePostStore } from './stores/post.js'
-import { commentState } from './stores/comment.js'
+import { commentState, useCommentStore } from './stores/comment.js'
 import VueCookies from 'vue-cookies'
 
 library.add(fas, far, fab);
@@ -28,12 +29,19 @@ app.use(router)
 app.use(ElementPlus)
 app.use(VueCookies)
 
+const userStore = useUserStore();
+const postStore = usePostStore();
+const commentStore = useCommentStore();
 router.beforeEach((to, from) => {
+    userStore.fetchUserInfo();
     if (to.name === 'post') {
-        const postStore = usePostStore();
         postStore.fetchPost(BigInt(convertToString(to.params.id)));
         commentState.postId = BigInt(convertToString(to.params.id));
         commentState.currentPage = 0;
+        commentStore.fetchCommentsInfo();
+    }
+    if (to.path.startsWith('/admin') && userStore.isAdmin()) {
+        router.push('/unauthorized')
     }
 })
 app.mount('#app')

@@ -11,14 +11,6 @@ const mainCategories = [
 ];
 const login = {name: '로그인', link: null};
 
-const userStore = useUserStore();
-const { userInfo } = storeToRefs(userStore);
-
-onMounted(() => {
-  userStore.fetchUserInfo();
-  console.log(userInfo.value);
-});
-
 </script>
 
 <template>
@@ -36,7 +28,7 @@ onMounted(() => {
     <el-col :span="4" class="right-part">
       <ul>
         <li>
-          <TheHeaderItem :category="login" @click-login="$emit('clickLogin')" />
+          <TheHeaderItem :category="login" />
         </li>
       </ul>
     </el-col>

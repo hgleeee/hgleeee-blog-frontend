@@ -1,35 +1,23 @@
 <script lang="ts" setup>
-import { ref } from 'vue'
+import { ref, reactive, onMounted, watch, computed } from 'vue'
+import { storeToRefs } from 'pinia'
 import TheHeader from '@/components/TheHeader.vue'
 import TheFooter from '@/components/TheFooter.vue'
 import TheSidebar from '@/components/TheSidebar.vue'
 import LoginPageBody from '@/components/LoginPageBody.vue'
 import RightSideBody from '@/components/RightSideBody.vue'
+import ChangeProfilePageBody from '@/components/ChangeProfilePageBody.vue'
+import { useModalStateStore, loginPageVisible, changeProfilePageVisible } from './stores/modalState.js'
 
-const visible = ref(false);
-const openLoginPage = function() {
-  console.log("opened")
-  visible.value = true;
-}
+const modalStateStore = useModalStateStore();
+const { modalState } = storeToRefs(modalStateStore);
 
-const login = function() {
-  console.log("로그인 시도!");
-};
 </script>
 
 <template>
-  <el-dialog v-model="visible" :width="400">
-    <template #header="{ titleClass }">
-      <div class="my-header">
-        <h2 :class="titleClass">로그인</h2>
-      </div>
-    </template>
-    <LoginPageBody />
-  </el-dialog>
-
   <el-container class="main">
     <el-header>
-      <TheHeader @click-login="openLoginPage"/>
+      <TheHeader/>
     </el-header>
     <el-container class="sub-main">
       <el-aside class="left-sidebar">
@@ -51,6 +39,24 @@ const login = function() {
         <RightSideBody />
       </el-aside>
     </el-container>
+
+
+    <el-dialog v-model="modalState.modalStateMap[loginPageVisible]" :width="400" :lock-scroll="false" >
+      <template #header="{ titleClass }">
+        <div class="my-header">
+          <h2 :class="titleClass">로그인</h2>
+        </div>
+      </template>
+      <LoginPageBody />
+    </el-dialog>
+    <el-dialog v-model="modalState.modalStateMap[changeProfilePageVisible]" :width="800" :height="600" :lock-scroll="false" :destroy-on-close=true>
+      <template #header="{ titleClass }">
+        <div class="my-header">
+          <h2 :class="titleClass">프로필 사진 변경</h2>
+        </div>
+      </template>
+      <ChangeProfilePageBody />
+    </el-dialog>
   </el-container>
 </template>
 
@@ -94,6 +100,7 @@ const login = function() {
 .main .el-main {
   padding: 20px 20px;
 }
+
 
 #wrapper-inner {
   display: flex;

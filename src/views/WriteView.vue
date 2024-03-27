@@ -46,7 +46,7 @@ onBeforeMount(() => {
     <div class="container">
         <h2 v-if="path === '/write'">글 작성 페이지</h2>
         <h2 v-else>글 수정 페이지</h2>
-        <el-form label-width="120px">
+        <el-form>
             <el-form-item label="제목">
                 <el-input v-model="writtenPost.title" placeholder="제목을 입력해주세요" />
             </el-form-item>
@@ -70,15 +70,15 @@ onBeforeMount(() => {
 
 <style scoped>
 #write-body {
-    margin: 50px 0 0 120px;
+    margin: 50px 0;
     border: solid var(--el-border-color) 1px;
     padding: 5px;
 }
 
 .line {
-    width: 50%;
+    width: 100%;
     height: 0;
-    margin: 30px 0 30px 120px;
+    margin: 30px 0 ;
     border-top: 1px solid var(--el-border-color);
 }
 </style>
