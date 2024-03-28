@@ -1,19 +1,16 @@
 <script setup lang="ts">
-import { ref, onBeforeMount } from "vue";
-import axios from "axios";
-import type { UploadFile } from 'element-plus'
+import { ref, onBeforeMount, onMounted, onBeforeUnmount } from "vue";
+import StarterKit from "@tiptap/starter-kit";
+import Image from "@tiptap/extension-image";
+import { Editor } from "@tiptap/vue-3";
 import WriteUpload from '@/components/WriteUpload.vue'
 import WriteBody from '@/components/WriteBody.vue'
-import type { WrittenPost } from '@/stores/writtenPost.js'
 import { useWrittenPostStore } from '@/stores/writtenPost.js'
 import { storeToRefs } from "pinia";
 import { useRoute } from 'vue-router'
 
-const postStore = useWrittenPostStore();
-const { writtenPost } = storeToRefs(postStore);
-
-
-
+const writtenPostStore = useWrittenPostStore();
+const { writtenPost } = storeToRefs(writtenPostStore);
 const route = useRoute();
 const path: string = route.path;
 
@@ -24,18 +21,40 @@ const cancel = function() {
 }
 
 const handleSubmit = function() {
-    postStore.submitPost(postId)
+    writtenPostStore.submitPost(postId)
         .then(() => {
             window.location.href = `/${postId}`;
         });
 }
 
+const editor: Editor = new Editor({
+    extensions: [
+        StarterKit,
+        Image,
+    ],
+    content: writtenPost.value.content,
+    onUpdate() {
+        writtenPost.value.content = (editor as Editor).getHTML();
+        console.log(writtenPost.value.content);
+    }
+});
+
+onMounted(() => {
+    writtenPostStore.fetchWrittenPost('200')
+        .then(() => {
+            editor.commands.setContent(writtenPost.value.content);
+        });
+})
+
+onBeforeUnmount(() => {
+    editor.destroy();
+});
+
 onBeforeMount(() => {
     if (route.path !== '/write') {
         postId = route.params.id as string;
-        postStore.fetchWrittenPost(route.params.id as string);
     } else {
-        postId = postStore.createEmptyPost() as string;
+        postId = writtenPostStore.createEmptyPost() as string;
     }
 });
 
@@ -52,13 +71,13 @@ onBeforeMount(() => {
             </el-form-item>
             
             <div id="write-body">
-                <WriteBody />
+                <WriteBody :editor="editor" />
             </div>
 
             <div class="line" />
 
             <el-form-item>
-                <WriteUpload :post-id="postId" />
+                <WriteUpload :post-id="postId" :editor="editor" />
             </el-form-item>
             <el-form-item>
                 <el-button type="primary" @click="handleSubmit()">글 작성완료</el-button>
@@ -69,6 +88,10 @@ onBeforeMount(() => {
 </template>
 
 <style scoped>
+.container {
+    margin: 0 20px;
+}
+
 #write-body {
     margin: 50px 0;
     border: solid var(--el-border-color) 1px;

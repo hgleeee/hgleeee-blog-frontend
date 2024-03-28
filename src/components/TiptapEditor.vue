@@ -2,37 +2,46 @@
 import { useEditor, EditorContent } from '@tiptap/vue-3'
 import StarterKit from '@tiptap/starter-kit'
 import { watch } from 'vue'
+import { storeToRefs } from 'pinia';
+import { useWrittenPostStore } from '@/stores/writtenPost';
 
-const props = defineProps({
-  modelValue: {
-    type: String,
-    default: '',
-  }
-});
+// const props = defineProps({
+//   modelValue: {
+//     type: String,
+//     default: '',
+//   }
+// });
 
-const emit = defineEmits(['update:modelValue']);
+// const emit = defineEmits(['update:modelValue']);
 
-const editor = useEditor ({
-  content: props.modelValue,
-  extensions: [
-    StarterKit,
-  ],
-  onUpdate: () => {
-    console.log(editor.value?.getHTML());
-    emit('update:modelValue', editor.value?.getHTML());
-  },
-});
+// const editor = useEditor ({
+//   content: props.modelValue,
+//   extensions: [
+//     StarterKit,
+//   ],
+//   onUpdate: () => {
+//     console.log(editor.value?.getHTML());
+//     emit('update:modelValue', editor.value?.getHTML());
+//   },
+// });
 
-watch(
-  () => props.modelValue,
-  value => {
-    const isSame = editor.value?.getHTML() === value;
-    if (isSame) {
-      return;
-    }
-    editor.value?.commands.setContent(value, false);
-  }
-)
+// const attachImageToEditor = function(filePath: string) {
+//   editor.value?.commands.setImage({ src: `${filePath}`});
+// }
+
+// watch(
+//   () => props.modelValue,
+//   value => {
+//     const isSame = editor.value?.getHTML() === value;
+//     if (isSame) {
+//       return;
+//     }
+//     editor.value?.commands.setContent(value, false);
+//   }
+// )
+
+const writtenPostStore = useWrittenPostStore();
+const { editor } = storeToRefs(writtenPostStore);
 
 </script>
 

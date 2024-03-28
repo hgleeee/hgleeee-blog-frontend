@@ -27,26 +27,25 @@ onUpdated(() => {
   bodyTarget.innerHTML = postRender.value.content;
 })
 
-watch(
-  () => commentState.postId, 
-  () => {
-    commentState.currentPage = 0;
-    commentStore.fetchCommentsInfo();
-  }
-);
+// watch(
+//   () => commentState.postId, 
+//   () => {
+//     commentState.currentPage = 0;
+//     commentStore.fetchCommentsInfo();
+//   }
+// );
 
-watch(
-  () => commentState.currentPage, 
-  (newValue, oldValue) => {
-    if (oldValue === 0) return;
-    commentStore.fetchCommentsInfo();
-  }
-);
+// watch(
+//   () => commentState.currentPage, 
+//   (newValue, oldValue) => {
+//     if (oldValue === 0) return;
+//     commentStore.fetchCommentsInfo();
+//   }
+// );
 
 const openReplyArea = function(idx: number, id: string) {
   const replyArea = document.getElementById('reply-input')!;
   parentIdClicked.value = id;
-  console.log(replyArea);
   if (replyArea.style.display !== 'none' && document.getElementById(`reply-input-area-${idx}`)!.childElementCount >= 1) {
     replyArea.style.display = 'none';
     return;
@@ -57,7 +56,7 @@ const openReplyArea = function(idx: number, id: string) {
 }
 
 const editPost = function() {
-  router.push(`/edit/${postId}`);
+  router.push(`/admin/edit/${postId}`);
 }
 
 </script>
@@ -76,7 +75,7 @@ const editPost = function() {
     </div>
     <div id="body"></div>
     <div id="edit-area">
-      <a :href="`/edit/${postId}`">글 수정</a>
+      <a @click="editPost()">글 수정</a>
     </div>
     <div id="footer">
       <h4>댓글 : {{ commentsInfo.totalCommentCount }}</h4>
@@ -173,6 +172,7 @@ $main-color: #FF5675;
     text-decoration: none;
     color: #ff5656;
     &:hover {
+      cursor: pointer;
       font-weight: bold;
     }
   }

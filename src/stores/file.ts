@@ -3,34 +3,50 @@ import { defineStore } from 'pinia'
 import { ref } from 'vue'
 import axios from 'axios'
 
-type FileInfo = {
+export type FileInfo = {
     'fileUrl': string,
 }
 
 export const useFileStore = defineStore('file', () => {
-    const toAttachImage = ref<UploadFile | undefined>(undefined);
     const imageList = ref<UploadFile[]>([]);
 
-    const handleRemove = (uploadFile: UploadFile, uploadFiles: UploadFile[]) => {
-        for (let i=0; i < uploadFiles.length; ++i) {
-            if (uploadFiles[i].url === uploadFile.url) {
-                uploadFiles.splice(i, 1);
+    function fetchImageList(postImages: string[]) {
+        for (const postImageFilePath of postImages) {
+            const file: UploadFile = {
+                name: 'example.jpg',
+                response: { fileUrl: postImageFilePath },
+                status: 'success',
+                uid: Math.random(),
+                url: postImageFilePath,
+            }
+            imageList.value.push(file);
+        }
+    }
+
+    function coverUrlFromFilePath() {
+        console.log(imageList);
+        for (const image of imageList.value) {
+            if (image.response && (image.response as FileInfo).fileUrl) {
+                image.url = (image.response as FileInfo).fileUrl;
+            } else {
+                console.error("File URL not found in image response:", image);
             }
         }
     }
 
-    function attachImage(file: UploadFile) {
-        console.log(file);
-        toAttachImage.value = file;
+    function handleRemove(filePath: string) {
+        for (let i=0; i < imageList.value.length; ++i) {
+            if ((imageList.value[i].response as FileInfo).fileUrl === filePath) {
+                imageList.value.splice(i, 1);
+            }
+        }
     }
 
     function handleSuccess(result: FileInfo) {
         const len = imageList.value.length;
-        // imageList.value[len-1].url = result.fileUrl;
-        imageList.value[len-1].url = 'https://fuss10.elemecdn.com/3/63/4e7f3a15429bfda99bce42a18cdd1jpeg.jpeg?imageMogr2/thumbnail/360x360/format/webp/quality/100'
-        console.log(result.fileUrl);
+        (imageList.value[len-1].response as FileInfo).fileUrl = result.fileUrl;
     }
 
-    return { toAttachImage, imageList, handleRemove, attachImage, handleSuccess };
+    return { imageList, handleRemove, fetchImageList, coverUrlFromFilePath };
 })
   

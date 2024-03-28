@@ -1,11 +1,17 @@
 import { defineStore } from 'pinia'
 import { type Ref, ref, computed } from 'vue'
 import { formatTimeAgo } from '@/stores/utils.js'
+import { useEditor, EditorContent, Editor } from '@tiptap/vue-3'
+import Image from '@tiptap/extension-image'
+import StarterKit from '@tiptap/starter-kit'
+import { watch } from 'vue'
 import axios from 'axios'
+import { useFileStore } from './file'
 
 export type WrittenPost = {
     title: string,
     content: string,
+    postImageFilePathList: string[], 
 }
 
 type PostForm = {
@@ -15,13 +21,17 @@ type PostForm = {
     categoryCode: string,
 }
 
+
 export const useWrittenPostStore = defineStore('writtenPost', () => {
-    const categoryCode = ref('100');
+    const categoryCode = ref(100);
+    const fileStore = useFileStore();
+
     const writtenPost: Ref<WrittenPost> = ref({
         title: '',
         content: '',
+        postImageFilePathList: [],
     });
-
+    
     function createEmptyPost(): string | undefined {
         axios.post('/api/post/register')
             .then((result) => {
@@ -33,12 +43,20 @@ export const useWrittenPostStore = defineStore('writtenPost', () => {
         return undefined;
     }
 
-    function fetchWrittenPost(id: string) {
-        axios.get(`/api/post/${id}`)
-            .then((result) => {
-                writtenPost.value.title = result.data.title;
-                writtenPost.value.content = result.data.content;
-            });
+    function attachImageToEditor(filePath: string, editor: Editor) {
+        console.log(filePath);
+        editor.chain().setImage({ src: filePath }).run();
+    }
+
+    async function fetchWrittenPost(id: string): Promise<void> {
+        try {
+            const result = await axios.get(`/api/post/${id}`)
+            writtenPost.value.title = result.data.title;
+            writtenPost.value.content = result.data.content;
+            fileStore.fetchImageList(result.data.postImageFilePathList);
+        } catch (error) {
+            console.log(error);
+        }
     }
 
     function submitPost(id: string): Promise<void> {
@@ -58,5 +76,5 @@ export const useWrittenPostStore = defineStore('writtenPost', () => {
             })
     };
     
-    return { writtenPost, createEmptyPost, fetchWrittenPost, submitPost };
+    return { writtenPost, createEmptyPost, fetchWrittenPost, submitPost, attachImageToEditor };
 });

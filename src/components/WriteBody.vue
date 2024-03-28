@@ -1,46 +1,43 @@
 <script lang="ts" setup>
-import StarterKit from '@tiptap/starter-kit'
-import type { UploadFile } from 'element-plus'
-import { computed, watch, onUpdated } from 'vue'
-import type { Ref } from 'vue' 
-import Image from '@tiptap/extension-image'
+import StarterKit from '@tiptap/starter-kit';
+import Image from '@tiptap/extension-image';
+import { onMounted, onBeforeUnmount } from 'vue';
 import { Editor, EditorContent } from '@tiptap/vue-3'
 import { useWrittenPostStore } from '@/stores/writtenPost.js'
 import { useFileStore } from '@/stores/file.js'
-import { storeToRefs } from 'pinia'
+import { storeToRefs } from 'pinia';
 
+const fileStore = useFileStore();
 const writtenPostStore = useWrittenPostStore();
 const { writtenPost } = storeToRefs(writtenPostStore);
-const fileStore = useFileStore();
-const { toAttachImage } = storeToRefs(fileStore);
 
-const editor: Editor = new Editor({
-    extensions: [
-        StarterKit,
-        Image,
-    ],
-    // content: writtenPost.value.content,
-    onUpdate() {
-        writtenPost.value.content = editor.getHTML();
-    }
-})
+const props = defineProps(['editor']);
+const editor: Editor = props.editor;
+
+// const editor: Editor = new Editor({
+//     extensions: [
+//         StarterKit,
+//         Image,
+//     ],
+//     // content: writtenPost.value.content,
+//     onUpdate() {
+//         writtenPost.value.content = editor.getHTML();
+//     }
+// })
 
 
-onUpdated(() => {
-    if (editor.getHTML() !== writtenPost.value.content) {
-        editor.commands.setContent(writtenPost.value.content);
-    }
-})
-
-watch(toAttachImage, () => {
-    if (toAttachImage.value === undefined || toAttachImage.value.url === null) return;
-    editor.chain().focus().setImage({ src: toAttachImage.value.url! }).run();
-    toAttachImage.value = undefined;
-})
+// onUpdated(() => {
+//     if (editor.getHTML() !== writtenPost.value.content) {
+//         editor.commands.setContent(writtenPost.value.content);
+//     }
+// })
 
 // onMounted(() => {
 //     editor.chain().focus().setTextSelection(10).run();
 // })
+
+
+
 
 </script>
 
@@ -110,7 +107,7 @@ watch(toAttachImage, () => {
     justify-content: space-between;
 
     button {
-        font-size: 15px;
+        font-size: 12px;
         outline: none;
         border: none;
         background: transparent;

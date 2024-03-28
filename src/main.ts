@@ -18,6 +18,7 @@ import { useUserStore } from './stores/user'
 import { usePostStore } from './stores/post.js'
 import { commentState, useCommentStore } from './stores/comment.js'
 import VueCookies from 'vue-cookies'
+import { useWrittenPostStore } from './stores/writtenPost'
 
 library.add(fas, far, fab);
 
@@ -32,6 +33,7 @@ app.use(VueCookies)
 const userStore = useUserStore();
 const postStore = usePostStore();
 const commentStore = useCommentStore();
+const writtenPostStore = useWrittenPostStore();
 router.beforeEach((to, from) => {
     userStore.fetchUserInfo();
     if (to.name === 'post') {
